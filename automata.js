@@ -1,112 +1,50 @@
 class Automata {
-    constructor(game, width = 80, height = 60) {
-        this.game = game;
-        this.width = width;
-        this.height = height;
-        this.tickCount = 0;
-        this.ticks = 0;
-        this.speed = 60;
-        this.automata = this.createEmptyAutomata();
-        this.randomize();
-    }
-
-    createEmptyAutomata() {
-        return Array.from({length: this.width}, () => Array.from({length: this.height}, () => 0));
-    }
-
-    randomize() {
-        this.forEachCell((col, row) => {
-            this.automata[col][row] = Math.floor(Math.random() * 2);
-        });
-    }
-
-    forEachCell(callback) {
-        for (let col = 0; col < this.width; col++) {
-            for (let row = 0; row < this.height; row++) {
-                callback(col, row);
+	constructor() {
+		this.plants = [];
+		this.length = 100;
+        this.width = 100;
+        this.plants = Array.from({length: this.length}, () => 
+        Array.from({width: this.width}, () => null));
+	}
+	
+	
+	clearPlants() {
+        let i = 0;
+        while (i < this.width) {
+            let j = 0;
+            while (j < this.length) {
+                this.plants[i][j] = null;
+                j++;
             }
+            i++;
         }
     }
 
-    countNeighbors(col, row) {
-        const indexes = [
-            [-1, -1], [-1, 0], [-1, 1],
-            [0, -1], [0, 1],
-            [1, -1], [1, 0], [1, 1],
-        ];
-        return indexes.reduce((count, [dCol, dRow]) => {
-            const neighborCol = col + dCol, neighborRow = row + dRow;
-            if (neighborCol >= 0 && neighborCol < this.width && neighborRow >= 0 && neighborRow < this.height) {
-                count += this.automata[neighborCol][neighborRow];
-            }
-            return count;
-        }, 0);
-    }
+	addPlant() {
+		let i = randomInt(this.width);
+		let j = randomInt(this.length);
+		let color = randomInt(360);
+		this.plants[i][j] = new Plant({hue: color, x: i, y: j}, this)
+	}
 
-    update() {
-        this.updateSpeed();
-        if (this.tickCount++ >= this.speedAdjustment()) {
-            this.tickCount = 0;
-            this.ticks++;
-            this.nextGeneration();
-        }
-        this.updateDisplay();
-    }
-
-    updateSpeed() {
-        const speedInput = document.getElementById("speed");
-        if (speedInput) this.speed = parseInt(speedInput.value);
-    }
-
-    speedAdjustment() {
-        return 120 - this.speed;
-    }
-
-    nextGeneration() {
-        let next = this.createEmptyAutomata();
-
-        this.forEachCell((col, row) => {
-            const liveNeighbors = this.countNeighbors(col, row);
-            const alive = this.automata[col][row] === 1;
-            if ((alive && (liveNeighbors === 2 || liveNeighbors === 3)) || (!alive && liveNeighbors === 3)) {
-                next[col][row] = 1;
-            }
-        });
-
-        this.automata = next;
-    }
-    updateDisplay() {
-        const ticksElement = document.getElementById('ticks');
-        if (ticksElement) ticksElement.innerHTML = "Ticks: " + this.ticks;
-    }
-
-    draw(ctx) {
-        const cellSize = 15, gap = 2;
-        ctx.fillStyle = 'blue';
-        ctx.fillRect(0, 0, ctx.canvas.width, ctx.canvas.height);
-
-        this.forEachCell((col, row) => {
-            if (this.automata[col][row] === 1) {
-                ctx.fillStyle = 'orange';
-                ctx.fillRect(col * cellSize + gap, row * cellSize + gap, cellSize - 2 * gap, cellSize - 2 * gap);
-            }
+	
+	update() {
+        this.plants.forEach((row, x) => {
+            row.forEach((plant, y) => {
+                plant?.update();
+                if (Math.random() < 0.001) {
+                    this.plants[x][y] = null;
+                }
+            });
         });
     }
-    
-    loadPreset(presetName) {
-        this.automata = this.createEmptyAutomata(); 
 
-        const presets = {
-            glider: () => this.placeGlider(1, 1), 
-            spaceship: () => this.placeSpaceship(10, 10), 
-            pulsar: () => this.placePulsar(20, 20), 
-            gosperGliderGun: () => this.placeGosperGliderGun(1, 5), 
-        };
-
-        if (typeof presets[presetName] === 'function') {
-            presets[presetName]();
-        } else {
-            console.error('Preset not found:', presetName);
-        }
+	draw(ctx) {
+        this.plants.forEach((row, x) => {
+            row.forEach((plant, y) => {
+                plant?.draw(ctx);
+            });
+        });
     }
-}
+	
+};

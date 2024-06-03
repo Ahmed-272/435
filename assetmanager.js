@@ -43,45 +43,5 @@ class AssetManager {
     getAsset(path) {
         return this.cache[path];
     };
-
-    initializePreset(presetName) {
-        this.automata = this.createEmptyAutomata(); 
-
-        const presetActions = {
-            glider: () => this.placeGlider(10, 10),
-            spaceship: () => this.placeSpaceship(15, 15),
-            pulsar: () => this.placePulsar(20, 20),
-            gosperGliderGun: () => this.placeGosperGliderGun(10, 50),
-        };
-
-        if (presetActions[presetName]) {
-            presetActions[presetName]();
-        }
-    }
-
-    placeGlider(col, row) {
-        this.activateCell(col + 1, row, 1);
-        this.activateCell(col + 2, row + 1, 1);
-        this.activateCell(col, row + 2, 1);
-        this.activateCell(col + 1, row + 2, 1);
-        this.activateCell(col + 2, row + 2, 1);
-    }
-
-    placeSpaceship(col, row) {
-        this.activateCell(col + 1, row, 1);
-        this.activateCell(col + 2, row, 1);
-        this.activateCell(col + 3, row, 1);
-        this.activateCell(col + 4, row, 1);
-        this.activateCell(col, row + 1, 1);
-        this.activateCell(col + 4, row + 1, 1);
-        this.activateCell(col + 4, row + 2, 1);
-        this.activateCell(col, row + 3, 1);
-        this.activateCell(col + 3, row + 3, 1);
-    }
-
-    activateCell(col, row, state) {
-        if (col >= 0 && col < this.width && row >= 0 && row < this.height) {
-            this.automata[col][row] = state;
-        }
-    }
 };
+

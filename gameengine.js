@@ -108,6 +108,10 @@ class GameEngine {
         }
     };
 
+    clearAnimats() {
+        this.entities = [this.entities[0]]; 
+    }
+
     loop() {
         this.clockTick = this.timer.tick();
         this.update();
